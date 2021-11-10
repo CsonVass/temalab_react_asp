@@ -1,4 +1,5 @@
 import React from 'react';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './column';
 
 class Table extends React.Component {
@@ -6,78 +7,172 @@ class Table extends React.Component {
     constructor(props){
         super(props)
         this.state={
-            pending:[],
-            inProgress:[],
-            done:[],
-            canceled:[]
+            columns: {},
+            colOffset: 0,
+            taskOffset: 0
         }
     }
 
-    
-
-    step(task, amount, array){       
-
-        let newOrder = array;
-        let task_ = array.find(_task => _task.props.name === task.props.name);
-        let idx = newOrder.indexOf(task_);
-
-        if(idx + amount >= 0 && idx + amount < array.length){
-            newOrder[idx] = newOrder[idx + amount];
-            newOrder[idx + amount] = task_;
-        }
-        
+    addColumn(){
+        let newJson = this.state.columns
+        newJson[this.state.colOffset] = {
+            "name": `New Column ${this.state.colOffset}`,
+            "tasks": []
+         }
         this.setState({
-            tasks: newOrder
+            columns: newJson,
+            colOffset: this.state.colOffset + 1
         })
     }
 
-    render() {
+    deleteColumn(colId){
+        let newJson = this.state.columns
+        delete newJson[colId]
+        this.setState({
+            columns: newJson
+        })
+    }
+
+    editColumn(colId, newName){
+        let newJson = this.state.columns
+        newJson[colId]["name"] = newName
+        this.setState({
+            columns: newJson
+        })
+    }
+
+    
+    dragged(colId, currentPos, newPos){        
+        let newJson = this.state.columns
+        
+        let tmp = newJson[colId]["tasks"][currentPos]
+        newJson[colId]["tasks"].splice(currentPos, 1)
+        newJson[colId]["tasks"].splice(newPos, 0, tmp)
+
+        this.setState({
+           columns: newJson
+        })
+    }
+
+
+
+    addTask(colId){
+        let date = new Date();
+        const [month, day, year]  = [String(date.getMonth() +1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), date.getFullYear()];  
+
+        let newJson = this.state.columns
+        newJson[colId]["tasks"].push( {
+            "id": this.state.taskOffset,
+            "name": `New Task ${this.state.taskOffset}`,
+            "deadline": `${year}-${month}-${day}`,
+            "description": "-"
+        })
+
+        this.setState({
+            columns: newJson,
+            taskOffset: this.state.taskOffset + 1
+        })
+
+    }
+
+    deleteTask(colId, taskId){
+        let newJson = this.state.columns
+        let idx = 0
+        for (let i = 0; i < newJson[colId]["tasks"].length; i++){
+            if( newJson[colId]["tasks"][i]["id"] === taskId){
+                idx = i
+                break
+            }
+        }
+        newJson[colId]["tasks"].splice(idx,1)
+        this.setState({
+            columns: newJson
+        })
+
+    }
+
+    editTask(colId, taskId, taskName, taskDeadline, taskDescription, newColId){
+        let newJson = this.state.columns
+        let idx = 0
+        for (let i = 0; i < newJson[colId]["tasks"].length; i++){
+            if( newJson[colId]["tasks"][i]["id"] === taskId){
+                idx = i
+                break
+            }
+        }
+
+        
+
+        if (newColId !== colId){
+            newJson[newColId]["tasks"].push({})
+            newJson[colId]["tasks"].splice(idx, 1)
+            idx = newJson[newColId]["tasks"].length - 1
+        }
+
+        
+        newJson[newColId]["tasks"][idx]["name"] = taskName
+        newJson[newColId]["tasks"][idx]["deadline"] = taskDeadline
+        newJson[newColId]["tasks"][idx]["description"] = taskDescription
+
+              
+
+        this.setState({
+            columns: newJson
+        })
+        
+    }
+
+    render() {        
+
+        let columnsToRender = []
+        let keys = Object.keys(this.state.columns)
+        let colNames = []
+
+        keys.forEach(key => {
+            colNames.push({
+                "key" : key,
+                "name" : this.state.columns[key]["name"]
+            })
+        })
+
+        keys.forEach(key => {
+            columnsToRender.push(
+                <Col align="center" key={`${key}${this.state.columns[key]["name"]} `}>                    
+                        <Column key={key}
+                            id = {key}
+                            name = {this.state.columns[key]["name"]}   
+                            tasks = {this.state.columns[key]["tasks"]}     
+                            deleteColumnCallback = {(colId) => this.deleteColumn(colId)}
+                            editColumnCallback = {(colId, colName) => this.editColumn(colId, colName)}
+                            draggedCallback = {(colId, currentPos, newPos) => this.dragged(colId, currentPos, newPos)}
+
+                            addTaskCallback = {(colId) => this.addTask(colId)}                            
+
+                            deleteTaskCallback = {(colId, taskId) => this.deleteTask(colId, taskId)}
+                            editTaskCallback = {(colId, taskId, taskName, taskDeadline, taskDescription, taskNewCol) => this.editTask(colId, taskId, taskName, taskDeadline, taskDescription, taskNewCol)}
+
+                            colList = {colNames}
+                        /> 
+                    </Col>
+            )
+        });
+       
 
         return (
-            <div className="table">
-                <div className="table-board" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridGap: 20 }}>
-                    <div>                         
-                        <Column 
-                            name = "Pending"   
-                            tasks = {this.state.pending}     
-                            add = {(task_) => {this.setState({pending: this.state.pending.concat(task_)})}}      
-                            deleteTask = {(task_) => this.setState({pending: this.state.pending.filter(_task => _task.props.name !== task_.props.name)
-                            }) }    
-                            step = {(task, amount) => this.step(task,amount, this.state.pending)}
-                        /> 
-                    </div>
-                    <div>                         
-                        <Column 
-                            name = "In progress"     
-                            tasks = {this.state.inProgress}  
-                            add = {(task_) => {this.setState({inProgress: this.state.inProgress.concat(task_)})}}     
-                            deleteTask = {(task_) => this.setState({inProgress: this.state.inProgress.filter(_task => _task.props.name !== task_.props.name)
-                            }) }                      
-                            step = {(task, amount) => this.step(task,amount, this.state.inProgress)}
-                        /> 
-                    </div>
-                    <div>                         
-                        <Column 
-                            name = "Done"      
-                            tasks = {this.state.done}           
-                            add = {(task_) => {this.setState({done: this.state.done.concat(task_)})}}            
-                            deleteTask = {(task_) => this.setState({done: this.state.done.filter(_task => _task.props.name !== task_.props.name)
-                            }) }       
-                            step = {(task, amount) => this.step(task,amount, this.state.done)}
-                        /> 
-                    </div>
-                    <div>                         
-                        <Column 
-                            name = "Canceled"      
-                            tasks = {this.state.canceled}         
-                            add = {(task_) => {this.setState({canceled: this.state.canceled.concat(task_)})}}       
-                            deleteTask = {(task_) => this.setState({canceled: this.state.canceled.filter(_task => _task.props.name !== task_.props.name)
-                            }) }      
-                            step = {(task, amount) => this.step(task,amount, this.state.canceled)}
-                        /> 
-                    </div>
-                </div>
-            </div>
+            <Container className="table table-striped" >
+                <Row>
+                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button key="button" 
+                        variant="outlined-primary"
+                        onClick={e => this.addColumn()}
+                        >New Column                            
+                        </Button>
+                        </div>
+                
+                    {columnsToRender}
+                </Row>                   
+                
+            </Container>
         );
     }
 }

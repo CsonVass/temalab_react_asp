@@ -1,160 +1,115 @@
 import React from 'react';
-import { TextField, Button } from '@mui/material';
-import './task.css'
+import { TextField } from '@mui/material';
+import { Button, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 class Task extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            id: this.props.id,
             name: this.props.name,
             deadline: this.props.deadline,
             description: this.props.description,
-            editing: false
+            editing: false,
+            newColId: this.props.colId
         }
-        this.handleChange = this.handleChange.bind(this)
     }
 
-    editTask() {
-        this.setState({ editing: true })
+    sendEdit(){
+        this.props.editTaskCallback(this.state.id, this.state.name, this.state.deadline, this.state.description, this.state.newColId)
+        this.setState({editing:false})
     }
-    saveEdit(task) {
-        this.setState({
-            editing: false
+
+    render() {       
+
+        let colListOption = [ ]
+        this.props.colList.forEach(key => {
+            colListOption.push(
+                <option value={key["key"]}>{key["name"]}</option>
+            )
         })
-    }
-
-    handleChange(e) {
-        switch (e.target.id) {
-            case "name":
-                this.setState({
-                    name: e.target.value
-                })
-                break;
-            case "deadline":
-                this.setState({
-                    deadline: e.target.value
-                })
-                break;
-            case "description":
-                this.setState({
-                    description: e.target.value
-                })
-                break;
-            case "state":
-               this.props.changeState(this, e.target.value)
-                break;
-            default:
-                break;
-        }
-
-    }
-
-
-    render() {
-
-        let editState = [<div className="dialogue">
-            <TextField
-
-                defaultValue={this.state.name}
-                disabled={!this.state.editing}
-                autoFocus
-                margin="dense"
-                id="name"
-                label="Name of Task"
-                type="plain"
-                fullWidth
-                variant="standard"
-                onChange={this.handleChange}
-            />
-            <TextField
-                defaultValue={this.state.deadline}
-                disabled={!this.state.editing}
-                id="deadline"
-                label="Deadline"
-                type="date"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                variant="standard"
-                onChange={this.handleChange}
-            />
-            <TextField
-                defaultValue={this.state.description}
-                disabled={!this.state.editing}
-                id="description"
-                label="Description"
-                multiline
-                fullWidth
-                variant="standard"
-                onChange={this.handleChange}
-            />
-{/* 
-            <TextField
-                id="state"
-                label="State"
-                select
-                fullWidth
-                variant="standard"
-                onChange={this.handleChange}
-            /> */}
-
-            <select id="state"
-                 onChange={this.handleChange}
-                 defaultValue={this.props.stateOfTask}    >
-                <option value="Pending">Pending</option>
-                <option value="In progress">In progress</option>
-                <option value="Done">Done</option>
-                <option value="Canceled">Canceled</option>      
-                     
-            </select>
-
-            <div className="task_buttons">
-                <Button
-                    variant="contained"
-                    color="success"
-                    onClick={() => this.saveEdit(this)}>Save
-                </Button>
-
-            </div>
-        </div>]
 
         let savedState = [<div className="task_info">
-            <div className="task_name" style={{ fontWeight: "bold" }}>Name: {this.state.name}</div>
-            <div className="task_deadline" style={{ fontStyle: "italic" }}>Deadline: {this.state.deadline}</div>
-            <div className="task_description" style={{ fontWeight: "plain" }}>Description: {this.state.description}</div>
+            <h5 className="card-title">{this.state.name}</h5>
+            <h6 className="card-subtitle mb-2 text-muted">{this.state.deadline}</h6>
+            <p className="card-text">{this.state.description}</p>
 
-            <div className="task_buttons">
+            <ButtonToolbar className="justify-content-between">
+                <ButtonGroup>
 
-                <Button
-                    variant="contained"
-                    onClick={() => this.editTask()}>⚙
-                </Button>
-
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => this.props.step(this, -1)}>▲
-                </Button>
-
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => this.props.step(this, +1)}>▼
-                </Button>
-
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => this.props.deleteTask(this)}>X
-                </Button>
-            </div>
+                    <Button
+                        variant="outline-secondary"
+                        onClick={() => this.setState({editing:true})}>
+                            <i className="bi bi-pencil"></i>
+                    </Button>
+                </ButtonGroup>
+                
+                <ButtonGroup>
+                    <Button
+                        variant="outline-danger"
+                        onClick={()=>this.props.deleteTaskCallback()}>
+                            <i className="bi bi-trash"></i>
+                    </Button>
+                </ButtonGroup>
+            </ButtonToolbar>
         </div>]
 
-        return (
-            <div className="task">
+        let editState = [
+            <div className="dialogue">
+                <TextField
 
-                {this.state.editing ? editState : savedState}
-            </div>
+                    defaultValue={this.state.name}
+                    autoFocus
+                    margin="dense"
+                    id="name_field"
+                    label="Name of Task"
+                    type="plain"
+                    fullWidth
+                    variant="standard"
+                    onChange={(e) => this.setState({name: e.target.value})}
+                />
+                <TextField
+                    defaultValue={this.state.deadline}
+                    id="deadline_field"
+                    label="Deadline"
+                    type="date"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    variant="standard"
+                    onChange={(e) => this.setState({deadline: e.target.value})}
+                />
+                <TextField
+                    defaultValue={this.state.description}
+                    id="description_field"
+                    label="Description"
+                    multiline
+                    fullWidth
+                    variant="standard"
+                    onChange={(e) => this.setState({description: e.target.value})}
+                />
+
+                <select id="state_field"
+                    defaultValue={this.props.colId}  
+                    onChange={(e) => this.setState({newColId: e.target.value})}  >
+                    {colListOption}  
+                        
+                </select>
+
+                <div className="task_buttons">
+                <Button type="button" className="btn btn-primary" 
+                    onClick={() => this.sendEdit()}>
+                        Save
+                </Button>
+
+                </div>
+            </div>]
+
+        return (
+               this.state.editing ? editState : savedState
         );
     }
+
+
 }
 export default Task;
