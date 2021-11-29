@@ -32,10 +32,10 @@ class Column extends React.Component {
         keys.forEach(key => {
             tasks.push(
                 <Card className="card-block" style={{ width: '18rem' }}>
-                    <Task key={`${this.state.id}${this.props.tasks[key]["name"]}`}
+                    <Task key={`${this.state.id}${this.props.tasks[key]["id"]}`}
                         id={this.props.tasks[key]["id"]}
                         name={this.props.tasks[key]["name"]}
-                        deadline={this.props.tasks[key]["deadline"]}
+                        dueDate={this.props.tasks[key]["dueDate"]}
                         description={this.props.tasks[key]["description"]}
                         deleteTaskCallback={() => this.props.deleteTaskCallback(this.state.id, this.props.tasks[key]["id"])}
                         editTaskCallback = {(taskId, taskName, taskDeadline, taskDescription, newColId) => this.props.editTaskCallback(this.state.id, taskId, taskName, taskDeadline, taskDescription, newColId)}
@@ -51,8 +51,8 @@ class Column extends React.Component {
 
         let editNameFrom = [
             <Form key={`${this.state.id}edit_form`}>
-                <input type="text" id={`${this.state.id}edit`} defaultValue={this.state.name}></input>
-                <button type="button" className="btn btn-primary" 
+                <input key="edit_name" type="text" id={`${this.state.id}edit`} defaultValue={this.state.name}></input>
+                <button key="button_ok" type="button" className="btn btn-primary" 
                     onClick={() => this.handleEditClick(document.getElementById(`${this.state.id}edit`).value)}>
                         Save
                 </button>
@@ -60,20 +60,20 @@ class Column extends React.Component {
         ]
 
         let savedForm = [
-            <div>
-            <h1 className="column_name">{this.state.name}</h1>
-            <div className="column_buttons">
-                    <Button 
+            <div key="savedForm">
+            <h1 key="colName" className="column_name">{this.state.name}</h1>
+            <div key="colButtons" className="column_buttons">
+                    <Button key="button_add"
                         variant="outline-success" 
                         onClick={()=>this.props.addTaskCallback(this.state.id)}>
                          <i className="bi bi-plus"></i>
                     </Button>
-                    <Button
+                    <Button key="button_edit"
                         variant="outline-warning"
                         onClick={() => this.setState({editing:true})}>
                             <i className="bi bi-pencil"></i>
                     </Button>
-                    <Button 
+                    <Button  key="button_delete"
                         variant="outline-danger"
                         onClick={()=>this.props.deleteColumnCallback(this.state.id)}>
                         <i className="bi bi-trash"></i>
@@ -86,12 +86,12 @@ class Column extends React.Component {
 
 
         return (
-            <div className="column">
+            <div className="column" key={this.state.id}>
                 {this.state.editing ? editNameFrom : savedForm}
-                <DragDropContext onDragEnd={(res) => this.handleOnDragEnd(res)}>
-                    <Droppable droppableId="tasks">
+                <DragDropContext key="dragdropctx" onDragEnd={(res) => this.handleOnDragEnd(res)}>
+                    <Droppable key="dropctx" droppableId="tasks">
                         { (provided) => (
-                            <ul className="tasks" {...provided.droppableProps} ref={provided.innerRef}>
+                            <ul key="drul" className="tasks" {...provided.droppableProps} ref={provided.innerRef}>
                                 {tasks.map((task, index) => {
                                     return(
                                         <Draggable key={`${task.props.children["key"]}`} draggableId={`${task.props.children["key"]}`}  {...provided.dragHandleProps} index={index}>
