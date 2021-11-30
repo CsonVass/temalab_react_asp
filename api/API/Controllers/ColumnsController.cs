@@ -117,7 +117,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{colId}/todoItems/{id}")]
-        public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
+        public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem, [FromQuery] int newColumnId)
         {
             if (id != todoItem.ID)
             {
@@ -126,11 +126,43 @@ namespace API.Controllers
 
             try
             {
+                todoItem.ColumnID = newColumnId;
                 await cm.TryUpdateTodoItem(todoItem);
             }
             catch (DbUpdateConcurrencyException ex)
             {
                 if (!TodoItemExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw ex;
+                }
+
+            }
+
+            return NoContent();
+        }
+        
+        [HttpPut("{colId}/todoItems")]
+        public async Task<IActionResult> PutTodoItemsInColumn(int colId, Column column)
+        {
+            if (colId != column.ID)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                foreach (var tdi in column.TodoItems)
+                {
+                    await cm.TryUpdateTodoItem(tdi);
+                }                
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                if (!ColumnExists(colId))
                 {
                     return NotFound();
                 }

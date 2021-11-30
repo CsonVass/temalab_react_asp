@@ -37,6 +37,9 @@ class Column extends React.Component {
                         name={this.props.tasks[key]["name"]}
                         dueDate={this.props.tasks[key]["dueDate"]}
                         description={this.props.tasks[key]["description"]}
+                        priority={key}
+
+                        
                         deleteTaskCallback={() => this.props.deleteTaskCallback(this.state.id, this.props.tasks[key]["id"])}
                         editTaskCallback = {(taskId, taskName, taskDeadline, taskDescription, newColId) => this.props.editTaskCallback(this.state.id, taskId, taskName, taskDeadline, taskDescription, newColId)}
                         

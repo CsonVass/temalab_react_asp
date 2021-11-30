@@ -27,7 +27,7 @@ class Task extends React.Component {
         let i = 0
         this.props.colList.forEach(key => {
             colListOption.push(
-                <option key={`sel-${this.state.id}-${i++}`} value={key["key"]}>{key["name"]}</option>
+                <option key={`sel-${this.state.id}-${i++}`} value={key["id"]}>{key["name"]}</option>
             )
         })
 
@@ -80,7 +80,11 @@ class Task extends React.Component {
                     fullWidth
                     InputLabelProps={{ shrink: true }}
                     variant="standard"
-                    onChange={(e) => this.setState({dueDate: e.target.value})}
+                    onChange={(e) => {
+                        if(new Date(e.target.value) < new Date("9999-12-30")){
+                            this.setState({dueDate: e.target.value})}
+                        }
+                    }
                 />
                 <TextField
                     defaultValue={this.state.description}

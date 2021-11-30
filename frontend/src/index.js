@@ -20,12 +20,20 @@ function convertTimeFromDb(data){
   });
 }
 
-function countTasks(data){
-  var sum = 0
+function countOffsets(data){
+  var biggestColumnId = 0
+  var biggestTodoItemId = 0
   Object.keys(data).forEach(col => {
-    sum += Object.keys(data[col]["todoItems"]).length
+    if (biggestColumnId < data[col]["id"]){
+      biggestColumnId = data[col]["id"];
+    }
+    Object.keys(data[col]["todoItems"]).forEach(todoItem => {
+      if (biggestTodoItemId < data[col]["todoItems"][todoItem]["id"]){
+          biggestTodoItemId = data[col]["todoItems"][todoItem]["id"];
+        }
+    });  
   });
-  return sum;
+  return [biggestColumnId + 1, biggestTodoItemId + 1];
 }
 
 function orderTasks(data){
@@ -40,8 +48,8 @@ api.getColumns().then(data => {
   ReactDOM.render(
     <Table 
       columns = {data}
-      colOffset = {Object.keys(data).length}
-      taskOffset = {countTasks(data)}
+      colOffset = {countOffsets(data)[0]}
+      taskOffset = {countOffsets(data)[1]}
     />,    
     document.getElementById('root')
 );

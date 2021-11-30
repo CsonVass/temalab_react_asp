@@ -83,10 +83,14 @@ namespace Canban.DAL
                 {
                     return false;
                 }
+                               
+
                 dbRecord.Name = todoItem.Name;
                 dbRecord.Description = todoItem.Description;
-                dbRecord.DueDate = todoItem.DueDate;
+                Console.WriteLine(todoItem.DueDate.ToString());
+                dbRecord.DueDate = DateTime.Parse(todoItem.DueDate.ToString());
                 dbRecord.Priority = todoItem.Priority;
+                dbRecord.ColumnID = todoItem.ColumnID;
 
                 db.TodoItems.Update(dbRecord);
 

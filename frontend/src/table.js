@@ -14,81 +14,103 @@ class Table extends React.Component {
         }
     }
 
+    findColumnKeyById(colId){
+        var id = -1;
+        Object.keys(this.state.columns).forEach(col => {
+            if(parseInt(this.state.columns[col]["id"]) === parseInt(colId)){
+                id = col;
+            }
+        })
+        return id;
+    }
+
     addColumn(){
         let newJson = this.state.columns
-        newJson[this.state.colOffset] = {
+        let newColumn = {
             "id": this.state.colOffset,
             "name": `New Column ${this.state.colOffset}`,
             "todoItems": []
          }
+        newJson[this.state.colOffset]  = newColumn
         this.setState({
             columns: newJson,
             colOffset: this.state.colOffset + 1
         })
+        api.postColumn(newColumn)
     }
 
-    deleteColumn(colId){        
-        let newJson = this.state.columns
-        let id = newJson[colId]["id"]
-        delete newJson[colId]
+    deleteColumn(colId){            
+        let newJson = this.state.columns    
+        delete newJson[this.findColumnKeyById(colId)]
         this.setState({
             columns: newJson
-        });
-        api.deleteColumn(id);
+        });        
+        api.deleteColumn(colId);
     }
 
     editColumn(colId, newName){
         let newJson = this.state.columns
-        newJson[colId]["name"] = newName
+        newJson[this.findColumnKeyById(colId)]["name"] = newName
         this.setState({
             columns: newJson
         })
+        api.putColumn(newJson[this.findColumnKeyById(colId)])
     }
 
     
     dragged(colId, currentPos, newPos){        
         let newJson = this.state.columns
         
-        let tmp = newJson[colId]["todoItems"][currentPos]
-        newJson[colId]["todoItems"].splice(currentPos, 1)
-        newJson[colId]["todoItems"].splice(newPos, 0, tmp)
+        let tmp = newJson[this.findColumnKeyById(colId)]["todoItems"][currentPos]
+        newJson[this.findColumnKeyById(colId)]["todoItems"].splice(currentPos, 1)
+        newJson[this.findColumnKeyById(colId)]["todoItems"].splice(newPos, 0, tmp)
+
+        Object.keys(newJson[this.findColumnKeyById(colId)]["todoItems"]).forEach(t => {
+            newJson[this.findColumnKeyById(colId)]["todoItems"][t]["priority"] = parseInt(t) 
+            api.putTodoItem(newJson[this.findColumnKeyById(colId)]["todoItems"][t], parseInt(t), colId, colId);
+        })
 
         this.setState({
            columns: newJson
         })
+
     }
 
 
 
     addTask(colId){
         let date = new Date();
-        const [month, day, year]  = [String(date.getMonth() +1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), date.getFullYear()];  
-
+        const [month, day, year]  = [String(date.getMonth() +1).padStart(2, '0'), String(date.getDate()).padStart(2, '0'), date.getFullYear()]; 
+        
         let newJson = this.state.columns
-        newJson[colId]["todoItems"].push( {
+        let newTask = {
             "id": this.state.taskOffset,
             "name": `New Task ${this.state.taskOffset}`,
             "dueDate": `${year}-${month}-${day}`,
             "description": "-"
-        })
+        }
+        newJson[this.findColumnKeyById(colId)]["todoItems"].push(newTask)
 
         this.setState({
             columns: newJson,
             taskOffset: this.state.taskOffset + 1
         })
 
+        api.postTodoItem(newTask, this.state.taskOffset, colId)
+        api.putColumn(newJson[this.findColumnKeyById(colId)])
+
     }
 
     deleteTask(colId, taskId){
         let newJson = this.state.columns
         let idx = 0
-        for (let i = 0; i < newJson[colId]["todoItems"].length; i++){
-            if( newJson[colId]["todoItems"][i]["id"] === taskId){
+        for (let i = 0; i < newJson[this.findColumnKeyById(colId)]["todoItems"].length; i++){
+            if( newJson[this.findColumnKeyById(colId)]["todoItems"][i]["id"] === taskId){
                 idx = i
                 break
             }
         }
-        newJson[colId]["todoItems"].splice(idx,1)
+        newJson[this.findColumnKeyById(colId)]["todoItems"].splice(idx,1)
         this.setState({
             columns: newJson
         })
@@ -100,8 +122,8 @@ class Table extends React.Component {
     editTask(colId, taskId, taskName, taskDeadline, taskDescription, newColId){
         let newJson = this.state.columns
         let idx = 0
-        for (let i = 0; i < newJson[colId]["todoItems"].length; i++){
-            if( newJson[colId]["todoItems"][i]["id"] === taskId){
+        for (let i = 0; i < newJson[this.findColumnKeyById(colId)]["todoItems"].length; i++){
+            if( newJson[this.findColumnKeyById(colId)]["todoItems"][i]["id"] === taskId){
                 idx = i
                 break
             }
@@ -109,22 +131,26 @@ class Table extends React.Component {
 
         
 
-        if (newColId !== colId){
-            newJson[newColId]["todoItems"].push({})
-            newJson[colId]["todoItems"].splice(idx, 1)
-            idx = newJson[newColId]["todoItems"].length - 1
+        if (this.findColumnKeyById(newColId) !== this.findColumnKeyById(colId)){
+            newJson[this.findColumnKeyById(newColId)]["todoItems"].push({})
+            newJson[this.findColumnKeyById(colId)]["todoItems"].splice(idx, 1)
+            idx = newJson[this.findColumnKeyById(newColId)]["todoItems"].length - 1
         }
 
         
-        newJson[newColId]["todoItems"][idx]["name"] = taskName
-        newJson[newColId]["todoItems"][idx]["dueDate"] = taskDeadline
-        newJson[newColId]["todoItems"][idx]["description"] = taskDescription
+        newJson[this.findColumnKeyById(newColId)]["todoItems"][idx]["id"] = taskId
+        newJson[this.findColumnKeyById(newColId)]["todoItems"][idx]["name"] = taskName
+        newJson[this.findColumnKeyById(newColId)]["todoItems"][idx]["dueDate"] = taskDeadline
+        newJson[this.findColumnKeyById(newColId)]["todoItems"][idx]["description"] = taskDescription
 
               
 
         this.setState({
             columns: newJson
         })
+
+        
+        api.putTodoItem(newJson[this.findColumnKeyById(newColId)]["todoItems"][idx], idx, parseInt(colId), parseInt(newColId))
         
     }
 
@@ -136,7 +162,7 @@ class Table extends React.Component {
 
         keys.forEach(key => {
             colNames.push({
-                "key" : key,
+                "id" : this.state.columns[key]["id"],
                 "name" : this.state.columns[key]["name"]
             })
         })
@@ -145,7 +171,7 @@ class Table extends React.Component {
             columnsToRender.push(
                 <Col align="center" key={`${key_}${this.state.columns[key_]["name"]}`}>                    
                         <Column key={key_}
-                            id = {key_}
+                            id = {this.state.columns[key_]["id"]}
                             name = {this.state.columns[key_]["name"]}   
                             tasks = {this.state.columns[key_]["todoItems"]}     
                             deleteColumnCallback = {(colId) => this.deleteColumn(colId)}
