@@ -63,10 +63,7 @@ export function postColumn(column){
     axios.post('https://localhost:44370/api/columns', {
         name: column["name"],
         todoItems: column["todoItems"]
-      })
-      .then(function (response) {
-        //console.log(response);
-      })
+      })      
       .catch(function (error) {
         console.log(error.response);
       });
@@ -79,9 +76,6 @@ export function postTodoItem(todoItem, priority, colId){
         description: todoItem["description"],
         columnId: colId,
         priority: priority
-      })
-      .then(function (response) {
-        //console.log(response);
       })
       .catch(function (error) {
         console.log(error.response);
@@ -96,9 +90,6 @@ export function putColumn(column){
         name: column["name"],
         todoItems: column["todoItems"]
       })
-      .then(function (response) {
-        //console.log(response);
-      })
       .catch(function (error) {
         console.log(error.response);
       });
@@ -112,9 +103,6 @@ export function putTodoItem(todoItem, priority, colId, newColId){
         description: todoItem["description"],
         columnId: colId,
         priority: priority
-      })
-      .then(function (response) {
-        //console.log(response);
       })
       .catch(function (error) {
         console.log(error.response);

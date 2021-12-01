@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Column from './column';
 import * as api from './api';
+import PropTypes from 'prop-types';
 
 class Table extends React.Component {
 
@@ -11,6 +12,14 @@ class Table extends React.Component {
             columns: props.columns,
             colOffset: props.colOffset,
             taskOffset: props.taskOffset
+        }
+    }
+
+    static get propTypes(){
+        return {
+            columns: PropTypes.array,
+            colOffset: PropTypes.number,
+            taskOffset: PropTypes.number
         }
     }
 
@@ -97,7 +106,6 @@ class Table extends React.Component {
         })
 
         api.postTodoItem(newTask, this.state.taskOffset, colId)
-        api.putColumn(newJson[this.findColumnKeyById(colId)])
 
     }
 
@@ -196,7 +204,7 @@ class Table extends React.Component {
                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     <Button key="button" 
                         variant="outlined-primary"
-                        onClick={e => this.addColumn()}
+                        onClick={()=> this.addColumn()}
                         >New Column                            
                         </Button>
                         </div>

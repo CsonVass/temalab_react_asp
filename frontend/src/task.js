@@ -2,6 +2,7 @@ import React from 'react';
 import { TextField } from '@mui/material';
 import { Button, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import PropTypes from 'prop-types';
 
 class Task extends React.Component {
     constructor(props) {
@@ -14,6 +15,21 @@ class Task extends React.Component {
             editing: false,
             newColId: this.props.colId
         }
+    }
+
+    static get propTypes(){
+        return {
+            id: PropTypes.number,
+            name: PropTypes.string,
+            dueDate: PropTypes.string,
+            description: PropTypes.string,
+            priority: PropTypes.number,
+            deleteTaskCallback: PropTypes.func,
+            editTaskCallback: PropTypes.func,
+            colList: PropTypes.array,
+            colId: PropTypes.number
+        }
+
     }
 
     sendEdit(){

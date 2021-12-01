@@ -2,7 +2,8 @@ import React from 'react';
 import { Button, Card, Form } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Task from './task';
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd'
+import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import PropTypes from 'prop-types';
 
 class Column extends React.Component {
     constructor(props) {
@@ -11,6 +12,21 @@ class Column extends React.Component {
             id: this.props.id,
             name: this.props.name,
             editing: false
+        }
+    }
+
+    static get propTypes(){
+        return {
+            id: PropTypes.number,
+            name: PropTypes.string,
+            tasks: PropTypes.array,
+            deleteColumnCallback: PropTypes.func,
+            editColumnCallback: PropTypes.func,
+            draggedCallback: PropTypes.func,
+            addTaskCallback: PropTypes.func,
+            deleteTaskCallback: PropTypes.func,
+            editTaskCallback: PropTypes.func,
+            colList: PropTypes.array
         }
     }
 
@@ -32,12 +48,12 @@ class Column extends React.Component {
         keys.forEach(key => {
             tasks.push(
                 <Card className="card-block" style={{ width: '18rem' }}>
-                    <Task key={`${this.state.id}${this.props.tasks[key]["id"]}`}
+                    <Task key={`${this.state.id}-${this.props.tasks[key]["id"]}`}
                         id={this.props.tasks[key]["id"]}
                         name={this.props.tasks[key]["name"]}
                         dueDate={this.props.tasks[key]["dueDate"]}
                         description={this.props.tasks[key]["description"]}
-                        priority={key}
+                        priority={parseInt(key)}
 
                         
                         deleteTaskCallback={() => this.props.deleteTaskCallback(this.state.id, this.props.tasks[key]["id"])}
