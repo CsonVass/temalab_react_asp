@@ -2,6 +2,7 @@ import React from 'react';
 import { TextField } from '@mui/material';
 import { Button, ButtonGroup, ButtonToolbar } from 'react-bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import PropTypes from 'prop-types';
 
 class Task extends React.Component {
     constructor(props) {
@@ -9,44 +10,60 @@ class Task extends React.Component {
         this.state = {
             id: this.props.id,
             name: this.props.name,
-            deadline: this.props.deadline,
+            dueDate: this.props.dueDate,
             description: this.props.description,
             editing: false,
             newColId: this.props.colId
         }
     }
 
+    static get propTypes(){
+        return {
+            id: PropTypes.number,
+            name: PropTypes.string,
+            dueDate: PropTypes.string,
+            description: PropTypes.string,
+            priority: PropTypes.number,
+            deleteTaskCallback: PropTypes.func,
+            editTaskCallback: PropTypes.func,
+            colList: PropTypes.array,
+            colId: PropTypes.number
+        }
+
+    }
+
     sendEdit(){
-        this.props.editTaskCallback(this.state.id, this.state.name, this.state.deadline, this.state.description, this.state.newColId)
+        this.props.editTaskCallback(this.state.id, this.state.name, this.state.dueDate, this.state.description, this.state.newColId)
         this.setState({editing:false})
     }
 
     render() {       
 
         let colListOption = [ ]
+        let i = 0
         this.props.colList.forEach(key => {
             colListOption.push(
-                <option value={key["key"]}>{key["name"]}</option>
+                <option key={`sel-${this.state.id}-${i++}`} value={key["id"]}>{key["name"]}</option>
             )
         })
 
-        let savedState = [<div className="task_info">
-            <h5 className="card-title">{this.state.name}</h5>
-            <h6 className="card-subtitle mb-2 text-muted">{this.state.deadline}</h6>
-            <p className="card-text">{this.state.description}</p>
+        let savedState = [<div key="taskState" className="task_info">
+            <h5 key="taskName" className="card-title">{this.state.name}</h5>
+            <h6 key="taskDeadline" className="card-subtitle mb-2 text-muted">{this.state.dueDate}</h6>
+            <p key="taskDesc" className="card-text">{this.state.description}</p>
 
-            <ButtonToolbar className="justify-content-between">
-                <ButtonGroup>
+            <ButtonToolbar key="btnToolbar" className="justify-content-between">
+                <ButtonGroup key="btnGroup1">
 
-                    <Button
+                    <Button key="btnEdit"
                         variant="outline-secondary"
                         onClick={() => this.setState({editing:true})}>
                             <i className="bi bi-pencil"></i>
                     </Button>
                 </ButtonGroup>
                 
-                <ButtonGroup>
-                    <Button
+                <ButtonGroup key="btnGroup2">
+                    <Button key="btndelete"
                         variant="outline-danger"
                         onClick={()=>this.props.deleteTaskCallback()}>
                             <i className="bi bi-trash"></i>
@@ -56,13 +73,14 @@ class Task extends React.Component {
         </div>]
 
         let editState = [
-            <div className="dialogue">
+            <div key="editState" className="dialogue">
                 <TextField
 
                     defaultValue={this.state.name}
                     autoFocus
                     margin="dense"
                     id="name_field"
+                    key="name_field"
                     label="Name of Task"
                     type="plain"
                     fullWidth
@@ -70,18 +88,24 @@ class Task extends React.Component {
                     onChange={(e) => this.setState({name: e.target.value})}
                 />
                 <TextField
-                    defaultValue={this.state.deadline}
-                    id="deadline_field"
+                    defaultValue={this.state.dueDate}
+                    id="dueDate_field"
+                    key="dueDate_field"
                     label="Deadline"
                     type="date"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
                     variant="standard"
-                    onChange={(e) => this.setState({deadline: e.target.value})}
+                    onChange={(e) => {
+                        if(new Date(e.target.value) < new Date("9999-12-30")){
+                            this.setState({dueDate: e.target.value})}
+                        }
+                    }
                 />
                 <TextField
                     defaultValue={this.state.description}
                     id="description_field"
+                    key="description_field"
                     label="Description"
                     multiline
                     fullWidth
@@ -89,14 +113,14 @@ class Task extends React.Component {
                     onChange={(e) => this.setState({description: e.target.value})}
                 />
 
-                <select id="state_field"
+                <select key="selectCol" id="state_field"
                     defaultValue={this.props.colId}  
                     onChange={(e) => this.setState({newColId: e.target.value})}  >
                     {colListOption}  
                         
                 </select>
 
-                <div className="task_buttons">
+                <div key="btnSave" className="task_buttons">
                 <Button type="button" className="btn btn-primary" 
                     onClick={() => this.sendEdit()}>
                         Save
