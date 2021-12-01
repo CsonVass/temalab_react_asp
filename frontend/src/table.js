@@ -36,16 +36,29 @@ class Table extends React.Component {
     addColumn(){
         let newJson = this.state.columns
         let newColumn = {
-            "id": this.state.colOffset,
-            "name": `New Column ${this.state.colOffset}`,
+            "name": `New Column`,
             "todoItems": []
-         }
+         }       
+         
+        api.postColumn(newColumn).then(data => {
+
+        newColumn["id"] = data["id"]
+
+
+        if(this.state.colOffset == 1){
+            this.setState({
+                colOffset: newColumn["id"]
+            })
+        }
+
         newJson[this.state.colOffset]  = newColumn
         this.setState({
             columns: newJson,
             colOffset: this.state.colOffset + 1
         })
-        api.postColumn(newColumn)
+    })
+        
+        
     }
 
     deleteColumn(colId){            
@@ -93,19 +106,33 @@ class Table extends React.Component {
         
         let newJson = this.state.columns
         let newTask = {
-            "id": this.state.taskOffset,
-            "name": `New Task ${this.state.taskOffset}`,
+            "name": `New Task`,
             "dueDate": `${year}-${month}-${day}`,
             "description": "-"
         }
-        newJson[this.findColumnKeyById(colId)]["todoItems"].push(newTask)
+        
 
-        this.setState({
-            columns: newJson,
-            taskOffset: this.state.taskOffset + 1
+        api.postTodoItem(newTask, this.state.taskOffset, colId).then(data => {
+
+            newTask["id"] = data["id"]
+
+            
+        if(this.state.taskOffset == 1){
+            this.setState({
+                taskOffset: newTask["id"]
+            })
+        }
+
+            
+            newJson[this.findColumnKeyById(colId)]["todoItems"].push(newTask)
+
+            this.setState({
+                columns: newJson,
+                taskOffset: this.state.taskOffset + 1
+            })
         })
 
-        api.postTodoItem(newTask, this.state.taskOffset, colId)
+        
 
     }
 

@@ -43,6 +43,7 @@ export function getTodoItemById(colId, id){
 
 //-----------DELETE----------------
 export function deleteColumn(colId){
+    console.log(colId)
     try{
         axios.delete(`https://localhost:44370/api/columns/${colId}`)
     }catch (err) {
@@ -60,31 +61,35 @@ export function deleteTodoItem(colId, id){
 
 //-----------POST------------------------
 export function postColumn(column){
-    axios.post('https://localhost:44370/api/columns', {
-        name: column["name"],
-        todoItems: column["todoItems"]
-      })      
-      .catch(function (error) {
-        console.log(error.response);
-      });
+    try{ 
+        const promise = axios.post('https://localhost:44370/api/columns', {
+                name: column["name"]
+            });
+        const dataPromise = promise.then((respone) => respone.data)  
+        return dataPromise;            
+    }catch (error) {
+        console.log(error.response)
+      }
 }
 
 export function postTodoItem(todoItem, priority, colId){
-    axios.post(`https://localhost:44370/api/columns/${colId}/todoItems`, {
-        name: todoItem["name"],
-        dueDate:todoItem["dueDate"],
-        description: todoItem["description"],
-        columnId: colId,
-        priority: priority
-      })
-      .catch(function (error) {
-        console.log(error.response);
-      });
+    try{
+        const promise = axios.post(`https://localhost:44370/api/columns/${colId}/todoItems`, {
+                name: todoItem["name"],
+                dueDate:todoItem["dueDate"],
+                description: todoItem["description"],
+                columnId: colId,
+                priority: priority
+            })
+        const dataPromise = promise.then((respone) => respone.data)  
+        return dataPromise;  
+    }catch (error) {
+        console.log(error.response)
+      }
 }
 
 //-----------PUT------------------------
 export function putColumn(column){    
-    console.log(column)
     axios.put(`https://localhost:44370/api/columns/${column["id"]}`, {
         id: column["id"],
         name: column["name"],
