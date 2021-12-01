@@ -54,7 +54,7 @@ namespace API.Controllers
             {
                 await cm.TryUpdateColumn(column);
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (DbUpdateConcurrencyException)
             {
                 if (!ColumnExists(id))
                 {
@@ -62,7 +62,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    throw ex;
+                    return Conflict();
                 }
 
             }          
@@ -129,7 +129,7 @@ namespace API.Controllers
                 todoItem.ColumnID = newColumnId;
                 await cm.TryUpdateTodoItem(todoItem);
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (DbUpdateConcurrencyException)
             {
                 if (!TodoItemExists(id))
                 {
@@ -137,7 +137,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    throw ex;
+                    return Conflict();
                 }
 
             }
@@ -160,7 +160,7 @@ namespace API.Controllers
                     await cm.TryUpdateTodoItem(tdi);
                 }                
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (DbUpdateConcurrencyException)
             {
                 if (!ColumnExists(colId))
                 {
@@ -168,7 +168,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    throw ex;
+                    return Conflict();
                 }
 
             }

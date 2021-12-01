@@ -54,17 +54,22 @@ namespace Canban.BL
             }
         }
 
-        public async Task TryUpdateColumn(Column column_)
+        public async Task<bool> TryUpdateColumn(Column column_)
         {
             using (var tran = new TransactionScope(
                TransactionScopeOption.Required,
                new TransactionOptions() { IsolationLevel = IsolationLevel.RepeatableRead },
                TransactionScopeAsyncFlowOption.Enabled))
             {
-               
+                var column = await columnRepository.GetColumnOrNull(column_.ID);
+                if (column == null)
+                    return false;
+
+
                 await columnRepository.UpdateColumn(column_);
 
                 tran.Complete();
+                return true;
             }
         }
 
@@ -96,6 +101,9 @@ namespace Canban.BL
               new TransactionOptions() { IsolationLevel = IsolationLevel.RepeatableRead },
               TransactionScopeAsyncFlowOption.Enabled))
             {
+                var todoItem = await todoItemRepository.GetTodoItemOrNull(todoItem_.ID);
+                if (todoItem == null)
+                    return false;
 
                 await todoItemRepository.UpdateTodoItem(todoItem_);
 
