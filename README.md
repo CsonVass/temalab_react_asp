@@ -1,29 +1,29 @@
-# `React` és `ASP.NET Core` alapú Canban tábla alkalmazás
-Vass Csongor - AHQQ3A
-Konzulens: Dudás Ákos
-/2021. ősz/
+# `React` és `ASP.NET Core` alapú Canban tábla alkalmazás  
+Vass Csongor - AHQQ3A  
+Konzulens: Dudás Ákos  
+/2021. ősz/  
 
 ## Feladat
->A konkrét feladat egy teendőket kezelő webalkalmazás backendjének és frontendjének elkészítése. A teendőket adatbázisban tároljuk és a webes felületen jelenítjük meg, a kiszolgáló pedig REST interfészen keresztül érhető el.
+>A konkrét feladat egy teendőket kezelő webalkalmazás backendjének és frontendjének elkészítése. A teendőket adatbázisban tároljuk és a webes felületen jelenítjük meg, a kiszolgáló pedig REST interfészen keresztül érhető el.  
 
->A teendők rendelkeznek címmel, leírással, határidővel és állapottal (függőben, folyamatban, kész, elhalasztva). A határidő helyett a prioritást a teendők sorrendje határozza meg, tehát az előbbi adataik mellett még az egymáshoz képesti sorrendet is tároljuk és megjelenítjük.
+>A teendők rendelkeznek címmel, leírással, határidővel és állapottal (függőben, folyamatban, kész, elhalasztva). A határidő helyett a prioritást a teendők sorrendje határozza meg, tehát az előbbi adataik mellett még az egymáshoz képesti sorrendet is tároljuk és megjelenítjük.  
 
 
 ## Frontend
 ### Felépítés
-A frontend egy JavaScript nyevlven, React technológiával elkészített webalkalmazás. A kinézet **Bootstrap** megjelenítési van kialakítva valamint tartalmaz néhány **Material UI** elemet (pl: task szerkesztési form) is. A kódellenőrzést eslint linter végzi.
-Adatokat a kialakított API-n kersztül éri el REST megközelítéssel. Ezeket az adatokat **a felhasználó által létrehozott oszlopokba** és azokon belül taskokba rendezi.
+A frontend egy JavaScript nyevlven, React technológiával elkészített webalkalmazás. A kinézet **Bootstrap** megjelenítési van kialakítva valamint tartalmaz néhány **Material UI** elemet (pl: task szerkesztési form) is. A kódellenőrzést eslint linter végzi.  
+Adatokat a kialakított API-n kersztül éri el REST megközelítéssel. Ezeket az adatokat **a felhasználó által létrehozott oszlopokba** és azokon belül taskokba rendezi.  
 ### Használat
-A `New Column` gomb megnyomásával hozhatunk létre új oszlopot, ami automatikusan New Column névvel jön létre.
-Az oszlopon szereplő három gomb közül a `piros szemetes` gomb az oszlopot (tartalmával együtt) törli, a `sárga ceruza` gombbal szerkeszthető az oszlop neve, valamint a `zöld plusz` gombbal új taskot illeszt az oszlop végére.
+A `New Column` gomb megnyomásával hozhatunk létre új oszlopot, ami automatikusan New Column névvel jön létre.  
+Az oszlopon szereplő három gomb közül a `piros szemetes` gomb az oszlopot (tartalmával együtt) törli, a `sárga ceruza` gombbal szerkeszthető az oszlop neve, valamint a `zöld plusz` gombbal új taskot illeszt az oszlop végére.  
 A task kártyákon szerepel a task neve, határideje, leírása. Ezek létrehozáskor rendre "New Task", a mai dátum, "-". A `piros szemetes` gombbal törölhető a task. A szürke `ceruza gomb` megnyomására a kártya szerkeszthetővé válik, és a felsorolt tulajdonságok mellett legördülő menüvel az oszlop is változtatható. A ˙Save` gombbal mentehőek a változtatások.
-A taskok közötti sorrend **drag and drop** módszerrel változtatható.
+A taskok közötti sorrend **drag and drop** módszerrel változtatható.  
 
 ## Backend
 ### Felépítés
-A backend egy ASP.NET Core alkalmazás, melyben az adattárolás Entity Framework Core alapon működik. A TodoItem és Column osztályok segítségével képezzük le az adatokat, amelyeket egy lokális, code-first megközelítésű SQL adatbázisban tárolnuk. A repository tervezési mintával kialakított adatelérési réteg fölé egy vékony üzleti réteg épül, amely segítségével még jobban kikényszeríthetjük a felelősségek elkülönítését. Az API és az adatbázis közötti kommunikációt ezen rétegben elhelyezkedő CanbanManagar osztály végzi.
+A backend egy ASP.NET Core alkalmazás, melyben az adattárolás Entity Framework Core alapon működik. A TodoItem és Column osztályok segítségével képezzük le az adatokat, amelyeket egy lokális, code-first megközelítésű SQL adatbázisban tárolnuk. A repository tervezési mintával kialakított adatelérési réteg fölé egy vékony üzleti réteg épül, amely segítségével még jobban kikényszeríthetjük a felelősségek elkülönítését. Az API és az adatbázis közötti kommunikációt ezen rétegben elhelyezkedő CanbanManagar osztály végzi.  
 ### Testing
-A backend (üzleti réteg) teszteléséhez pár egyszerű tesztmetódus tartozik. Ezek nem biztosítanak tényleges hozzáférést az adatbázishoz, csak mock-olják azt.
+A backend (üzleti réteg) teszteléséhez pár egyszerű tesztmetódus tartozik. Ezek nem biztosítanak tényleges hozzáférést az adatbázishoz, csak mock-olják azt.  
 Tesztmetódusok:
 * Nem létező oszlop törlése
 * Nem létező task törlése
@@ -31,9 +31,9 @@ Tesztmetódusok:
 * Nem létező task frissítése
 
 ## API
-A frontend és backend közötti kommunikációt egy rest megközelítési api teszi lehetővé. Az adatok http kéréseken belül utaznak json formátumban. A konzisztens elnevezések miatt ezekből közvetlenül, külön explicit konvertálás nélkül tudják a komponensek az adatokat kezelni.
-Az api az üzleti réteg CanbanManager osztály függvényeit hívja a megkapott paraméterekkel. Különböző hibák esetén eltérő válaszkódokat ad vissza.
-Elérése a `https://localhost:44370/` címen lehetséges a definiált végpontokkal.
+A frontend és backend közötti kommunikációt egy rest megközelítési api teszi lehetővé. Az adatok http kéréseken belül utaznak json formátumban. A konzisztens elnevezések miatt ezekből közvetlenül, külön explicit konvertálás nélkül tudják a komponensek az adatokat kezelni.  
+Az api az üzleti réteg CanbanManager osztály függvényeit hívja a megkapott paraméterekkel. Különböző hibák esetén eltérő válaszkódokat ad vissza.  
+Elérése a `https://localhost:44370/` címen lehetséges a definiált végpontokkal.  
 ### Végpontok
 * Get
     * api/columns
