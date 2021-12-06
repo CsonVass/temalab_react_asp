@@ -155,10 +155,7 @@ namespace API.Controllers
 
             try
             {
-                foreach (var tdi in column.TodoItems)
-                {
-                    await cm.TryUpdateTodoItem(tdi);
-                }                
+                await cm.TryUpdateTodoItemsInColumn(column);    
             }
             catch (DbUpdateConcurrencyException)
             {
