@@ -10,18 +10,36 @@ Konzulens: Dudás Ákos
 
 
 ## Frontend
-### Felépítés
-A frontend egy JavaScript nyevlven, React technológiával elkészített webalkalmazás. A kinézet **Bootstrap** megjelenítési van kialakítva valamint tartalmaz néhány **Material UI** elemet (pl: task szerkesztési form) is. A kódellenőrzést eslint linter végzi.  
-Adatokat a kialakított API-n kersztül éri el REST megközelítéssel. Ezeket az adatokat **a felhasználó által létrehozott oszlopokba** és azokon belül taskokba rendezi.  
 ### Használat
 A `New Column` gomb megnyomásával hozhatunk létre új oszlopot, ami automatikusan New Column névvel jön létre.  
 Az oszlopon szereplő három gomb közül a `piros szemetes` gomb az oszlopot (tartalmával együtt) törli, a `sárga ceruza` gombbal szerkeszthető az oszlop neve, valamint a `zöld plusz` gombbal új taskot illeszt az oszlop végére.  
 A task kártyákon szerepel a task neve, határideje, leírása. Ezek létrehozáskor rendre "New Task", a mai dátum, "-". A `piros szemetes` gombbal törölhető a task. A szürke `ceruza gomb` megnyomására a kártya szerkeszthetővé válik, és a felsorolt tulajdonságok mellett legördülő menüvel az oszlop is változtatható. A ˙Save` gombbal mentehőek a változtatások.
 A taskok közötti sorrend **drag and drop** módszerrel változtatható.  
+### Felépítés
+A frontend egy JavaScript nyevlven, React technológiával elkészített webalkalmazás. A kinézet **Bootstrap** megjelenítési van kialakítva valamint tartalmaz néhány **Material UI** elemet (pl: task szerkesztési form) is. A kódellenőrzést eslint linter végzi.  
+Adatokat a kialakított API-n kersztül éri el REST megközelítéssel. Ezeket az adatokat **a felhasználó által létrehozott oszlopokba** és azokon belül taskokba rendezi.  
+#### Osztályok
+* api.js - Az API-val kommunikáló komponens, axiost-t használ
+* column.js - Az oszlopot reprezentáló React komponens
+* index.js - A frontend belépési pontja, adatok betöltése backendről, világ létrehozása
+* table.js - A táblázatot reprezentáló React komponens. Tárolja az oszlopok és taskok adatait, ezekhez definiál függvényeket
+* task.js - A taskot reprezentáló React komponens
 
 ## Backend
 ### Felépítés
 A backend egy ASP.NET Core alkalmazás, melyben az adattárolás Entity Framework Core alapon működik. A TodoItem és Column osztályok segítségével képezzük le az adatokat, amelyeket egy lokális, code-first megközelítésű SQL adatbázisban tárolnuk. A repository tervezési mintával kialakított adatelérési réteg fölé egy vékony üzleti réteg épül, amely segítségével még jobban kikényszeríthetjük a felelősségek elkülönítését. Az API és az adatbázis közötti kommunikációt ezen rétegben elhelyezkedő CanbanManagar osztály végzi.  
+#### Osztályok
+* DAL
+    * CanbanContext.cs - A DbContext osztályból leszármazó kontextus osztály, mely az adatbázist reprezentálja
+    * Column.cs - Az oszlop adatbázis elem reprezentációja
+    * TodoItem.cs - A todoItem adatbázis elem reprezentációja
+    * IColumnRepository - Interfész, melyen keresztül az oszlopok változtathatóak a repository tervezési minta alapján
+    * ColumnRepository - Az IColumnRepository implementálása
+    * ITodoItemRepository - Interfész, melyen keresztül a todoItemek változtathatóak a repository tervezési minta alapján
+    * TodoItemRepository - Az ITodoItemRepository implementálása
+* BL
+    * CanbanManager - Az adatbázison végezhető műveleteket fogja össze. Függvényeket definiál a repositoryk helyes eléréséhez
+
 ### Testing
 A backend (üzleti réteg) teszteléséhez pár egyszerű tesztmetódus tartozik. Ezek nem biztosítanak tényleges hozzáférést az adatbázishoz, csak mock-olják azt.  
 Tesztmetódusok:
@@ -31,9 +49,15 @@ Tesztmetódusok:
 * Nem létező task frissítése
 
 ## API
+### Felépítés
 A frontend és backend közötti kommunikációt egy rest megközelítési api teszi lehetővé. Az adatok http kéréseken belül utaznak json formátumban. A konzisztens elnevezések miatt ezekből közvetlenül, külön explicit konvertálás nélkül tudják a komponensek az adatokat kezelni.  
-Az api az üzleti réteg CanbanManager osztály függvényeit hívja a megkapott paraméterekkel. Különböző hibák esetén eltérő válaszkódokat ad vissza.  
+Az api az üzleti réteg CanbanManager osztály függvényeit hívja a megkapott paraméterekkel. Különböző hibák esetén eltérő válaszkódokat ad vissza. Program osztálya a backend solution belépési pontja.
 Elérése a `https://localhost:44370/` címen lehetséges a definiált végpontokkal.  
+#### Osztályok
+* ColumnsController.cs - Az API interfészé. A definiált végpontokra az üzleti rétegen keresztül elvégzi a műveleteket
+* Program.cs - A backend belépési pontja, itt szerepel a Main függvény
+* Startup.cs - A backend konfigurációját végzi, többek közt: dependency injection, Cors beállítások, lazy loading
+
 ### Végpontok
 * Get
     * api/columns
