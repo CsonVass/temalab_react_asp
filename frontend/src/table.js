@@ -89,12 +89,14 @@ class Table extends React.Component {
 
         Object.keys(newJson[this.findColumnKeyById(colId)]["todoItems"]).forEach(t => {
             newJson[this.findColumnKeyById(colId)]["todoItems"][t]["priority"] = parseInt(t) 
-            api.putTodoItem(newJson[this.findColumnKeyById(colId)]["todoItems"][t], parseInt(t), colId, colId);
         })
+
+        api.putTodoItemsInColumn(newJson[this.findColumnKeyById(colId)])
 
         this.setState({
            columns: newJson
-        })
+        })       
+       
 
     }
 
@@ -115,6 +117,7 @@ class Table extends React.Component {
         api.postTodoItem(newTask, this.state.taskOffset, colId).then(data => {
 
             newTask["id"] = data["id"]
+            newTask["columnID"] = data["columnID"]
 
             
         if(this.state.taskOffset == 1){
