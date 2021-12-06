@@ -111,6 +111,28 @@ namespace Canban.BL
                 return true;
             }
         }
+
+        public async Task<bool> TryUpdateTodoItemsInColumn(Column column_)
+        {
+            using (var tran = new TransactionScope(
+            TransactionScopeOption.Required,
+            new TransactionOptions() { IsolationLevel = IsolationLevel.RepeatableRead },
+            TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var column = await columnRepository.GetColumnOrNull(column_.ID);
+                if (column == null)
+                    return false;
+
+                foreach (TodoItem tdi in column_.TodoItems)
+                {
+                    await todoItemRepository.UpdateTodoItem(tdi);
+                }
+
+                tran.Complete();
+                return true;
+            }
+        }
+
         public async Task<IReadOnlyCollection<TodoItem>> ListTodoItemsInColumn(int colId) => await todoItemRepository.ListTodoItemsInColumn(colId);
         public async Task AddNewTodoItem(TodoItem todoItem) => await todoItemRepository.AddNewTodoItem(todoItem);
 

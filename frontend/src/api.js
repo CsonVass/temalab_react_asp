@@ -114,7 +114,6 @@ export function putTodoItem(todoItem, priority, colId, newColId){
 }
 
 export function putTodoItemsInColumn(column){
-    console.log(column)
     axios.put(`https://localhost:44370/api/columns/${column["id"]}/todoItems`, {
         id: column["id"],
         name: column["name"],
