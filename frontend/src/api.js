@@ -43,7 +43,6 @@ export function getTodoItemById(colId, id){
 
 //-----------DELETE----------------
 export function deleteColumn(colId){
-    console.log(colId)
     try{
         axios.delete(`https://localhost:44370/api/columns/${colId}`)
     }catch (err) {
